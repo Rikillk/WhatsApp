@@ -1,0 +1,98 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}// schema.prisma
+
+model User {
+  id               Int        @id @default(autoincrement())
+  email            String     @unique
+  username         String     // Add the username field
+  profilePicture   String     @default("")
+  about            String     @default("Hey there..I'm using ")
+  sentMessages     Messages[] @relation("sentMessages")
+  receivedMessages Messages[] @relation("receivedMessages")
+  blockedUsers     User[]    @relation("BlockingUsers")
+  blockingUsers    User[]    @relation("BlockingUsers")
+  groups           GroupMember[] @relation("GroupMembers")
+  groupMessages    GroupMessage[] @relation("GroupMessages")
+  password         String
+  pushNotifications PushNotification[] @relation("pushNotifications")
+
+}
+
+model Messages {
+  id            Int      @id @default(autoincrement())
+  sender        User     @relation("sentMessages", fields: [senderId], references: [id])
+  senderId      Int
+  receiver      User     @relation("receivedMessages", fields: [receiverId], references: [id])
+  receiverId    Int
+  type          String   @default("text")
+  message       String
+  messageStatus String   @default("sent")
+  createdAt     DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+// Group model representing group chats
+model Group {
+  id          Int      @id @default(autoincrement())
+  name        String
+  members     GroupMember[] @relation("userGroups")
+  messages    GroupMessage[] @relation("Messages")
+  groupNotifications PushNotification[] @relation("groupNotifications")
+
+}
+
+// GroupMember model representing group chat memberships
+model GroupMember {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  groupId     Int
+  isMuted     Boolean  @default(false)
+  muteUntil   DateTime?
+  user        User     @relation("GroupMembers", fields: [userId], references: [id])
+  group       Group    @relation("userGroups", fields: [groupId], references: [id])
+  
+}
+
+// GroupMessage model representing messages in group chats
+model GroupMessage {
+  id        Int      @id @default(autoincrement())
+  content   String
+  senderId  Int
+  groupId   Int
+  createdAt DateTime @default(now())
+  sender    User     @relation("GroupMessages", fields: [senderId], references: [id])
+  group     Group    @relation("Messages", fields: [groupId], references: [id])
+}
+model Block {
+  id           Int      @id @default(autoincrement())
+  blockerId    Int
+  blockedId    Int
+  createdAt    DateTime @default(now())
+  // Add any other fields as needed
+}
+model PushNotification {
+  id           Int      @id @default(autoincrement())
+  userId       Int      // User ID of the recipient
+  message      String   // Message content
+  senderId     Int      // User ID of the sender
+  groupId      Int?     // Group ID (nullable, for group notifications)
+  isRead       Boolean  @default(false) // Indicates whether the notification has been read
+  createdAt    DateTime @default(now()) // Timestamp of when the notification was created
+
+  // Define a relation to the User model
+  user         User     @relation("pushNotifications", fields: [userId], references: [id])
+
+  // Define a relation to the Group model (if you have one)
+  group        Group?   @relation("groupNotifications", fields: [groupId], references: [id])
+}
