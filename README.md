@@ -64,34 +64,7 @@ curl -X 'POST' \
   }
 }
 
-## User SignUp
 
-### Request
-
-`/api/auth/signup`
-
-curl -X 'POST' \
-  'http://localhost:3001/api/auth/signup' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-"username":"asad",
-"email":"asad92@gmail.com",
-"password":"asad1234"
-}'
-### Response
-
- {
-  "message": "Registration successful",
-  "user": {
-    "message": "Signup was successful",
-    "user": {
-      "id": 11,
-      "email": "asad92@gmail.com",
-      "username": "asad"
-    }
-  }
-}
 ## User SignIn
 
 ### Request
