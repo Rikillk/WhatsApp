@@ -3,6 +3,7 @@ import { PrismaService } from 'prisma/prisma.service';
 // import { User } from '../users/users.controller';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
+import { AuthDto } from 'src/auth/dto/signup.dto';
 
 @Injectable()
 export class UsersService {
@@ -54,5 +55,44 @@ export class UsersService {
         });
       }
       
+  async createUser(input: AuthDto): Promise<User> {
+    const { username, email, password } = input;
 
+    // Check if the user with the provided email already exists
+    const existingUser = await this.prisma.user.findUnique({ where: { email } });
+
+    if (existingUser) {
+      throw new Error('Email already exists');
+    }
+
+    // Create the user
+    const newUser = await this.prisma.user.create({
+      data: {
+        username,
+        email,
+        password, // Make sure to hash the password before storing it in the database
+      },
+    });
+
+    return newUser;
+  }
+  async deleteUser(userId:number): Promise<boolean> {
+    try {
+      // Use Prisma to delete the user by userId
+      const deletedUser = await this.prisma.user.delete({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (deletedUser) {
+        return true; // User was deleted successfully
+      } else {
+        return false; // User not found or deletion failed
+      }
+    } catch (error) {
+      console.error(error);
+      return false; // Handle any potential errors and return false
+    }
+  }
 }

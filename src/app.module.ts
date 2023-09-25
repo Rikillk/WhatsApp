@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from 'prisma/prisma.module';
 import { UsersModule } from './user/user.module';
@@ -29,7 +29,12 @@ import { SlackNotificationService } from './slacknotification/slacknotification.
 import { SlackController } from './slacknotification/slacknotification.controller';
 import { HttpModule } from '@nestjs/axios';
 import { SlackCronService } from './slacknotification/slack-cron.service';
-
+import { RecaptchaMiddleware } from './captcha/recaptcha.middleware';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { GraphQlModule } from './graph-ql/graph-ql.module';
+import { GroupResolver, MessageResolver, UserResolver } from './graph-ql/graph-ql.resolvers';
+import { join } from 'path';
 
 @Module({
   imports: [AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
@@ -38,11 +43,26 @@ import { SlackCronService } from './slacknotification/slack-cron.service';
       signOptions: { expiresIn: '1h' },
     }),  MulterModule.register({
       dest: './uploads', // Specify the upload directory
+    }), GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      playground:true,
+      // autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      // //definitions: {
+      //  // path: join(process.cwd(), 'src/graphql.ts'),
+      // },
+      typePaths: ['./**/*.graphql']
     }),
     CommonModule,
-    ChatGptModule,ConfigModule.forRoot(), PushNotificationModule    
+    ChatGptModule,ConfigModule.forRoot(), PushNotificationModule,    PassportModule.register({ session: true }), GraphQlModule,
+ 
 ],
-  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService],
+  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver]
+,
   controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    // Replace 'your-secret-key' with your actual reCAPTCHA secret key
+    consumer.apply(RecaptchaMiddleware).forRoutes('your-protected-route');
+  }
+}

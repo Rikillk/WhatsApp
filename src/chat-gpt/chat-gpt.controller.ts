@@ -7,9 +7,9 @@ export class ChatGptController {
   constructor(private readonly chatGptService: ChatGptService) {}
 
   @Post('/analyze-offensive')
-  async analyzeOffensiveMessage(@Body() message:string): Promise<{ isOffensive: boolean }> {
+  async analyzeOffensiveMessage(@Body() dto:AnalyzeOffensiveDto): Promise<{ isOffensive: boolean }> {
     try {
-      const isOffensive = await this.chatGptService.analyzeOffensiveMessage(message);
+      const isOffensive = await this.chatGptService.analyzeOffensiveMessage(dto);
 
       return { isOffensive };
     } catch (error) {

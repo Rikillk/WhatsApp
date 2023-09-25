@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
+import { AnalyzeOffensiveDto } from './analyze-offensive.dto/analyze.offensive.dto';
 
 @Injectable()
 export class ChatGptService {
@@ -13,11 +14,11 @@ export class ChatGptService {
         });
 
     }
-    async analyzeOffensiveMessage(message: string): Promise<boolean> {
+    async analyzeOffensiveMessage(dto: AnalyzeOffensiveDto): Promise<boolean> {
         try {
           const response = await this.openAIApi.completions.create({
             model:'davinci-002',
-            prompt: `Is the following message offensive? "${message}"`,
+            prompt: `Is the following message offensive? "${dto}"`,
             max_tokens: 1,
           });
     

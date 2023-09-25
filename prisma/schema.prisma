@@ -23,8 +23,9 @@ model User {
   blockingUsers    User[]    @relation("BlockingUsers")
   groups           GroupMember[] @relation("GroupMembers")
   groupMessages    GroupMessage[] @relation("GroupMessages")
-  password         String
+  password         String?
   pushNotifications PushNotification[] @relation("pushNotifications")
+  roles             UserRole[]
 
 }
 
@@ -56,6 +57,7 @@ model Group {
 model GroupMember {
   id          Int      @id @default(autoincrement())
   userId      Int
+  name        String   @default("Name the Group")
   groupId     Int
   isMuted     Boolean  @default(false)
   muteUntil   DateTime?
@@ -95,4 +97,30 @@ model PushNotification {
 
   // Define a relation to the Group model (if you have one)
   group        Group?   @relation("groupNotifications", fields: [groupId], references: [id])
+}
+model Role {
+  id                Int        @id @default(autoincrement())
+  name              RoleName   // Use the RoleName enum for the role name
+  users             UserRole[]
+  permissions       Permission[] 
+}
+
+model Permission {
+  id                Int        @id @default(autoincrement())
+  name              String     @unique
+  roles             Role[]
+}
+model UserRole {
+  id                Int        @id @default(autoincrement())
+  role              Role       @relation(fields: [roleId], references: [id])
+  roleId            Int
+  user              User       @relation(fields: [userId], references: [id])
+  userId            Int
+  // Add any other fields related to the user's role if needed
+}
+
+enum RoleName {
+  Owner
+  Admin
+  Member
 }

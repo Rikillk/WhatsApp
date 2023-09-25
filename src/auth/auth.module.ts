@@ -7,6 +7,7 @@ import { PrismaModule } from 'prisma/prisma.module';
 import { EmailService } from 'src/email/email.service';
 import { EmailController } from 'src/email/email.controller';
 import { EmailModule } from 'src/email/email.module';
+import { GoogleStrategy } from './utils/GoogleStrategy';
 // import { GoogleStrategy } from './google.strategy';
 
 @Module({
@@ -15,6 +16,6 @@ import { EmailModule } from 'src/email/email.module';
   }), PassportModule, PrismaModule,EmailModule,
    ],
   controllers: [AuthController,EmailController],
-  providers: [AuthService,EmailService],
+  providers: [AuthService,EmailService,GoogleStrategy],
 })
 export class AuthModule {}

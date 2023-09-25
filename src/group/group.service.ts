@@ -4,7 +4,7 @@ import { AddMemberDto } from './dto/add-member.dto';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { MuteGroupDto } from './dto/mute-group.dto';
 import { SendMessageDto } from './dto/sendmessage.dto';
-import { User } from '@prisma/client';
+import { Group, User } from '@prisma/client';
 @Injectable()
 export class GroupService {
   constructor(private readonly prisma: PrismaService) { }
@@ -25,13 +25,29 @@ export class GroupService {
   }
 
   async addMember(groupId: number, addMemberDto: AddMemberDto) {
-    return this.prisma.groupMember.create({
+    // Create a new group member
+    const newMember = await this.prisma.groupMember.create({
       data: {
         userId: addMemberDto.userId,
         groupId,
       },
     });
+
+    // Fetch the group with its members and user names
+    const updatedGroup = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    return updatedGroup;
   }
+
 
 
 
@@ -59,17 +75,20 @@ export class GroupService {
 
 
   async getGroupMembers(groupId: number) {
-    const groupMembers = await this.prisma.groupMember.findMany({
+    const Members = await this.prisma.groupMember.findMany({
       where: {
         groupId,
       },
     });
 
-    if (!groupMembers) {
+    if (!Members) {
       throw new NotFoundException('Group members not found.');
     }
-
-    return groupMembers.map((member) => member.userId);
+    const groupMembers: Group[] = Members.map((member) => ({
+      id: member.id,
+      name: member.name,
+    }));
+    return groupMembers;
 
   }
   async addUserToGroup(userId: number, groupId: number) {

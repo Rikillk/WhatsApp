@@ -17,7 +17,7 @@ export class SlackCronService {
   private sendDailySlackMessage() {
     const message = 'Good morning, Slack!';
 
-    const webhookUrl = 'https://hooks.slack.com/services/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';
+    const webhookUrl = 'https://hooks.slack.com/services/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';
 
     this.slackNotificationService.sendSlackMessage(message, webhookUrl);
   }

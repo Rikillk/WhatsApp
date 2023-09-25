@@ -1,30 +1,4 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
 ## Installation
 
@@ -57,17 +31,161 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+# REST API
 
-## Support
+The REST API to the example app is described below.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## User SignUp
 
-## Stay in touch
+### Request
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+`/api/auth/signup`
 
-## License
+curl -X 'POST' \
+  'http://localhost:3001/api/auth/signup' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+"username":"asad",
+"email":"asad92@gmail.com",
+"password":"asad1234"
+}'
+### Response
 
-Nest is [MIT licensed](LICENSE).
+ {
+  "message": "Registration successful",\
+  "user": {\
+    "message": "Signup was successful",\
+    "user": {\
+      "id": 11,\
+      "email": "asad92@gmail.com",\
+      "username": "asad"
+    }
+  }
+}
+
+## User SignUp
+
+### Request
+
+`/api/auth/signup`
+
+curl -X 'POST' \
+  'http://localhost:3001/api/auth/signup' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+"username":"asad",
+"email":"asad92@gmail.com",
+"password":"asad1234"
+}'
+### Response
+
+ {
+  "message": "Registration successful",
+  "user": {
+    "message": "Signup was successful",
+    "user": {
+      "id": 11,
+      "email": "asad92@gmail.com",
+      "username": "asad"
+    }
+  }
+}
+## User SignIn
+
+### Request
+
+`/api/auth/signin`
+
+
+curl -X 'POST' \
+  'http://localhost:3001/api/auth/signin' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+"email":"manver23@gmail.com",
+"password":"manu@45"}'
+
+### Response
+{
+  "message": "Logged in successfully",\
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoibWFudmVyMjNAZ21haWwuY29tIiwiaWF0IjoxNjk1NDU3MzIzfQ.shIm5Rmo5Wm58Sldcb_ZpgA_ursMsBMohQHDPN6Ejik"
+}
+## User SignOut
+
+### Request
+
+`/api/auth/signout`
+
+
+curl -X 'GET' \
+  'http://localhost:3001/api/auth/signout' \
+  -H 'accept: */*' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoibWFudmVyMjNAZ21haWwuY29tIiwiaWF0IjoxNjk1NDU3MzIzfQ.shIm5Rmo5Wm58Sldcb_ZpgA_ursMsBMohQHDPN6Ejik'\
+### Response
+{
+  "message": "Signed out successfully"
+}
+## Offensive-message-analysis with AI
+
+### Request
+
+`/api/messages/analyze-offensive`
+
+curl -X 'POST' \
+  'http://localhost:3001/api/messages/analyze-offensive' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '
+{"message":"How are you?"
+}'
+### Response
+{
+  "isOffensive": false
+}
+## Sending Welcome e-mail on Successful SignUp
+
+### Request
+
+`/api/email/sendemail`
+
+curl -X 'POST' \
+  'http://localhost:3001/api/email/sendemail' \
+  -H 'accept: */*' \
+  -d ''
+### Response
+{
+  "message": "Welcome mail sent"
+}
+## Registering through Google
+### Request
+
+`/api/auth/google/login`
+
+curl -X 'GET' \
+  'http://localhost:3001/api/auth/google/login' \
+  -H 'accept: */*'
+### Response
+{
+  "message": "Google Authentication"
+}
+## Creating a Group
+### Request
+
+`/api/groups`
+
+curl -X 'POST' \
+  'http://localhost:3001/api/groups' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"School wale",
+"members":[7,8,9,10]
+}'
+### Response
+{
+  "id": 4,
+  "name": "School wale"
+}
+
+

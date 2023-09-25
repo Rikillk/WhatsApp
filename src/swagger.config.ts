@@ -7,5 +7,6 @@ export const swaggerConfig = new DocumentBuilder()
   .setDescription('Contains different endpoints for features ')
   .setVersion('3.1.0')
   .addTag('API')
-  .addTag('Uploads') // Add a new tag for file uploads
+  .addTag('Uploads')
+  .addBearerAuth() // Add a new tag for file uploads
   .build();

@@ -1,0 +1,52 @@
+  type User {
+  id: Int!
+  username: String!
+  email: String!
+  profilePicture: String 
+  status: String 
+  lastActive: String 
+}
+
+type Message {
+  id: ID!
+  text: String!
+  sender: User!
+  receiver: User!
+  timestamp: String!
+  media: String # URL to attached media (e.g., images, videos)
+  readStatus: Boolean # Whether the message has been read
+}
+
+# Define the Group type
+type Group {
+  id: ID!
+  name: String!
+  members: [User!]!
+  description: String
+  creationDate: String
+}
+
+# Define queries to fetch data
+type Query {
+  getUser(id: ID!): User
+
+  getMessages(id: ID!): [Message]
+
+  getGroup(id: ID!): Group
+
+  getUserGroups(userId: ID!): [Group]
+}
+
+type Mutation {
+  createUser(username: String!, email: String!, password: String!): User
+
+  sendMessage(senderId: ID!, receiverId: ID!, text: String!, media: String): Message
+
+  createGroup(name: String!, members: [ID!]!, description: String): Group
+}
+
+# Define subscriptions for real-time updates (optional)
+type Subscription {
+  # Subscribe to new messages in a group
+  messageAdded(groupId: ID!): Message
+}

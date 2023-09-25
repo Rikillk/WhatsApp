@@ -16,7 +16,7 @@ export class GroupController {
     return this.groupService.createGroup(createGroupDto);
   }
 
-  @Post(':groupId/members')
+  @Put(':groupId/members')
   async addMember(@Param('groupId',ParseIntPipe) groupId: number, @Body() addMemberDto: AddMemberDto) {
     return this.groupService.addMember(groupId, addMemberDto);
   }  
