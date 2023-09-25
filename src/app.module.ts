@@ -35,6 +35,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQlModule } from './graph-ql/graph-ql.module';
 import { GroupResolver, MessageResolver, UserResolver } from './graph-ql/graph-ql.resolvers';
 import { join } from 'path';
+import { FilesController } from './files/files.controller';
 
 @Module({
   imports: [AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
@@ -58,7 +59,7 @@ import { join } from 'path';
 ],
   providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver]
 ,
-  controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController],
+  controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController, FilesController],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
