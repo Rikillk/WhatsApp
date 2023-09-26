@@ -36,6 +36,7 @@ import { GraphQlModule } from './graph-ql/graph-ql.module';
 import { GroupResolver, MessageResolver, UserResolver } from './graph-ql/graph-ql.resolvers';
 import { join } from 'path';
 import { FilesController } from './files/files.controller';
+import { BlockModule } from './mongodb/block.module';
 
 @Module({
   imports: [AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
@@ -54,12 +55,12 @@ import { FilesController } from './files/files.controller';
       typePaths: ['./**/*.graphql']
     }),
     CommonModule,
-    ChatGptModule,ConfigModule.forRoot(), PushNotificationModule,    PassportModule.register({ session: true }), GraphQlModule,
+    ChatGptModule,ConfigModule.forRoot(), PushNotificationModule,    PassportModule.register({ session: true }), GraphQlModule,BlockModule
  
 ],
-  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver]
+  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver,] 
 ,
-  controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController, FilesController],
+  controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController, FilesController,] 
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
