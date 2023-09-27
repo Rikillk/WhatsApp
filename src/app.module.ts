@@ -37,15 +37,21 @@ import { GroupResolver, MessageResolver, UserResolver } from './graph-ql/graph-q
 import { FilesController } from './files/files.controller';
 import { BlockModule } from './mongodb/block.module';
 import { RedisCacheModule } from './redis-cache.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [RedisCacheModule,AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
+    ThrottlerModule.forRoot({
+      limit: 10, // The maximum number of requests allowed within the TTL
+      ttl: 60,   // The time-to-live for rate limit counters (in seconds)
+    }),
     
     JwtModule.register({ 
       secret: 'JWT_SECRET',
       signOptions: { expiresIn: '1h' },
     }),  MulterModule.register({
-      dest: './uploads', // Specify the upload directory
+      dest: './uploads', 
     }), GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground:true,
@@ -60,13 +66,17 @@ import { RedisCacheModule } from './redis-cache.module';
     ChatGptModule,ConfigModule.forRoot(), PushNotificationModule,    PassportModule.register({ session: true }), GraphQlModule,BlockModule
  
 ],
-  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver,Logger] 
+  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver,Logger,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
+    ] 
 ,
   controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController, FilesController,] 
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    // Replace 'your-secret-key' with your actual reCAPTCHA secret key
     consumer.apply(RecaptchaMiddleware).forRoutes('your-protected-route');
   }
 }
