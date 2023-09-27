@@ -37,9 +37,11 @@ import { GroupResolver, MessageResolver, UserResolver } from './graph-ql/graph-q
 import { join } from 'path';
 import { FilesController } from './files/files.controller';
 import { BlockModule } from './mongodb/block.module';
+import { RedisCacheModule } from './redis-cache.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
+  imports: [RedisCacheModule,AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
+    
     JwtModule.register({ 
       secret: 'JWT_SECRET',
       signOptions: { expiresIn: '1h' },
@@ -52,7 +54,8 @@ import { BlockModule } from './mongodb/block.module';
       // //definitions: {
       //  // path: join(process.cwd(), 'src/graphql.ts'),
       // },
-      typePaths: ['./**/*.graphql']
+      typePaths: ['./**/*.graphql'],
+      
     }),
     CommonModule,
     ChatGptModule,ConfigModule.forRoot(), PushNotificationModule,    PassportModule.register({ session: true }), GraphQlModule,BlockModule

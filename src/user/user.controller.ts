@@ -8,16 +8,16 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   // @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  getUser(@Param('id',ParseIntPipe)   id:number) {
-    return this.usersService.getUser(id);
-  }
-
   @Get()
   getUsers() {
     return this.usersService.getUsers();
   }
-
+  
+  @Get(':id')
+  getUser(@Param('id',ParseIntPipe) id: number) {
+    return this.usersService.getUser(id);
+  }
+  
   @UseGuards(AuthGuard)
   @Post(':id/block')
   async blockUser(@Param('id',ParseIntPipe) id: number, @Body() blockUserDto: BlockUserDto) {

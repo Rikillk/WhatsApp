@@ -1,19 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-// import { User } from '../users/users.controller';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 import { AuthDto } from 'src/auth/dto/signup.dto';
+import { Cache } from 'cache-manager'; // Import the Cache module
+import { CACHE_MANAGER } from '@nestjs/cache-manager'; // Import CACHE_MANAGER and Inject
 
 @Injectable()
 export class UsersService {
-   
-    constructor(private prisma: PrismaService) {}
-     
-    async getUser(id: number){
-        return await this.prisma.user.findUnique({where:{id}})
+  constructor(
+    private prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache, // Inject the Cache module
+  ) {}
+
+  async getUser(id: number) {
+    // Use caching for user profiles
+    const cachedUser = await this.cache.get<User>(`user_profile_${id}`);
+    console.log(cachedUser)
+    if (cachedUser) {
+      return cachedUser;
     }
 
+    const user = await this.prisma.user.findUnique({ where: { id } });
+
+    // Cache the user profile
+    await this.cache.set(`user_profile_${id}`, user, { ttl: 3600 }); // Cache for 1 hour
+
+    return user;
+  }
     async getUsers(){
         return await this.prisma.user.findMany({ select:{id: true, email: true}})
     }
@@ -95,4 +109,5 @@ export class UsersService {
       return false; // Handle any potential errors and return false
     }
   }
+  
 }
