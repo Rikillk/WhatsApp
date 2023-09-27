@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from 'prisma/prisma.module';
 import { UsersModule } from './user/user.module';
@@ -34,7 +34,6 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQlModule } from './graph-ql/graph-ql.module';
 import { GroupResolver, MessageResolver, UserResolver } from './graph-ql/graph-ql.resolvers';
-import { join } from 'path';
 import { FilesController } from './files/files.controller';
 import { BlockModule } from './mongodb/block.module';
 import { RedisCacheModule } from './redis-cache.module';
@@ -61,7 +60,7 @@ import { RedisCacheModule } from './redis-cache.module';
     ChatGptModule,ConfigModule.forRoot(), PushNotificationModule,    PassportModule.register({ session: true }), GraphQlModule,BlockModule
  
 ],
-  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver,] 
+  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver,Logger] 
 ,
   controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController, FilesController,] 
 })
