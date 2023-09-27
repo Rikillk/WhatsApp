@@ -36,9 +36,12 @@ import { GraphQlModule } from './graph-ql/graph-ql.module';
 import { GroupResolver, MessageResolver, UserResolver } from './graph-ql/graph-ql.resolvers';
 import { join } from 'path';
 import { FilesController } from './files/files.controller';
+import { BlockModule } from './mongodb/block.module';
+import { RedisCacheModule } from './redis-cache.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
+  imports: [RedisCacheModule,AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
+    
     JwtModule.register({ 
       secret: 'JWT_SECRET',
       signOptions: { expiresIn: '1h' },
@@ -51,15 +54,16 @@ import { FilesController } from './files/files.controller';
       // //definitions: {
       //  // path: join(process.cwd(), 'src/graphql.ts'),
       // },
-      typePaths: ['./**/*.graphql']
+      typePaths: ['./**/*.graphql'],
+      
     }),
     CommonModule,
-    ChatGptModule,ConfigModule.forRoot(), PushNotificationModule,    PassportModule.register({ session: true }), GraphQlModule,
+    ChatGptModule,ConfigModule.forRoot(), PushNotificationModule,    PassportModule.register({ session: true }), GraphQlModule,BlockModule
  
 ],
-  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver]
+  providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver,] 
 ,
-  controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController, FilesController],
+  controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController, FilesController,] 
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
