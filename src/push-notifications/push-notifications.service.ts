@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { PushNotificationDto } from './dto/push-notification.dto';
 @Injectable()
 export class PushNotificationService {
+  private readonly logger = new Logger(PushNotificationService.name);
   constructor(private readonly prisma: PrismaService) { }
 
   async createPushNotification(pushNotificationDto: PushNotificationDto) {
@@ -17,9 +18,11 @@ export class PushNotificationService {
         },
       });
 
+      this.logger.log('Push notification created successfully');
+
       return createdNotification;
     } catch (error) {
-      console.error('Error creating push notification:', error.message);
+      this.logger.error('Error creating push notification:', error.message);
       throw error;
     }
   }
@@ -35,6 +38,7 @@ export class PushNotificationService {
       },
     });
   }
+
   async createGroupPushNotifications(groupId: number, message: string, senderId: number) {
     const groupMembers = await this.prisma.groupMember.findMany({
       where: {
@@ -53,9 +57,15 @@ export class PushNotificationService {
       isRead: false,
     }));
 
-    await this.prisma.pushNotification.createMany({
-      data: notifications as any[],
-    });
-  }
+    try {
+      await this.prisma.pushNotification.createMany({
+        data: notifications as any[],
+      });
 
+      this.logger.log('Group push notifications created successfully');
+    } catch (error) {
+      this.logger.error('Error creating group push notifications:', error.message);
+      throw error;
+    }
+  }
 }

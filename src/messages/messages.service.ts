@@ -1,42 +1,56 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageDto } from './dto/message.dto';
 import { Socket } from 'socket.io';
-import { Prisma, User } from '@prisma/client'; // Import the Prisma namespace
+import { Prisma, User } from '@prisma/client';
 
 @Injectable()
 export class MessagesService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(MessagesService.name);
+
+  constructor(private prisma: PrismaService) { }
 
   async createMessage(createMessageDto: CreateMessageDto): Promise<MessageDto> {
     const { message, senderId, receiverId, type, messageStatus } = createMessageDto;
 
+    try {
+      const createdMessage = await this.prisma.messages.create({
+        data: {
+          message,
+          senderId,
+          receiverId,
+          type: type || 'text',
+          messageStatus: messageStatus || 'sent',
+        },
+      });
 
-    // Create the message using Prisma
-    const createdMessage = await this.prisma.messages.create({
-      data: {
-        message,
-        senderId,
-        receiverId , 
-        type: type || 'text',
-        messageStatus: messageStatus || 'sent',
-      },
-    });
+      this.logger.log(`Message created successfully: ID ${createdMessage.id}`);
 
-    return this.mapToDto(createdMessage);
+      return this.mapToDto(createdMessage);
+    } catch (error) {
+      this.logger.error(error, 'MessagesService.createMessage');
+      throw error;
+    }
   }
 
   async findMessageById(id: number): Promise<MessageDto> {
-    const message = await this.prisma.messages.findUnique({
-      where: { id },
-    });
+    try {
+      const message = await this.prisma.messages.findUnique({
+        where: { id },
+      });
 
-    if (!message) {
-      throw new NotFoundException(`Message with ID ${id} not found`);
+      if (!message) {
+        throw new NotFoundException(`Message with ID ${id} not found`);
+      }
+
+      this.logger.log(`Message found: ID ${message.id}`);
+
+      return this.mapToDto(message);
+    } catch (error) {
+      this.logger.error(error, 'MessagesService.findMessageById');
+      throw error;
     }
-
-    return this.mapToDto(message);
   }
 
   private mapToDto(message: any): MessageDto {
@@ -50,17 +64,13 @@ export class MessagesService {
       createdAt: message.createdAt,
     };
   }
-
-  // WebSocket-related methods
-  private users: Map<number, Socket> = new Map<number, Socket>(); // Map userId (number) to socket
+  private users: Map<number, Socket> = new Map<number, Socket>();
 
   public addUser(userId: number, socket: Socket): void {
-    // Add user and socket to the map
     this.users.set(userId, socket);
   }
 
   public removeUser(userId: number): void {
-    // Remove user and socket from the map
     this.users.delete(userId);
   }
 
@@ -84,42 +94,51 @@ export class MessagesService {
         if (receiverSocket.connected) {
           receiverSocket.emit('message', { senderId, message });
         } else {
-          // Handle the case when the receiver's socket is disconnected
-          console.error(`Receiver ${receiverId}'s socket is disconnected.`);
-          // Optionally, you can remove the user from the map
+          const errorMessage = `Receiver ${receiverId}'s socket is disconnected.`;
+          console.error(errorMessage);
+          this.logger.warn(errorMessage);
           this.removeUser(receiverId);
         }
       } else {
-        // Handle the case when the receiver is not found in the map
-        console.error(`Receiver ${receiverId} not found.`);
+        const errorMessage = `Receiver ${receiverId} not found.`;
+        console.error(errorMessage);
+        this.logger.warn(errorMessage);
       }
     } catch (error) {
-      // Handle any unexpected errors
-      console.error(`An error occurred while sending a message: ${error.message}`);
+      const errorMessage = `An error occurred while sending a message: ${error.message}`;
+      console.error(errorMessage);
+      this.logger.error(errorMessage);
     }
   }
-  // Assuming you have a message service
-async softDeleteMessage(messageId: number) {
-  // Find the message by ID
-  const message = await this.prisma.messages.findUnique({
-    where: {
-      id: messageId,
-    },
-  });
 
-  if (!message) {
-    throw new NotFoundException('Message not found');
+  async softDeleteMessage(messageId: number) {
+    try {
+      const message = await this.prisma.messages.findUnique({
+        where: {
+          id: messageId,
+        },
+      });
+
+      if (!message) {
+        throw new NotFoundException('Message not found');
+      }
+
+      await this.prisma.messages.update({
+        where: {
+          id: messageId,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+
+      this.logger.log(`Message with ID ${messageId} soft-deleted successfully`);
+    } catch (error) {
+      const errorMessage = `An error occurred while soft-deleting a message: ${error.message}`;
+      console.error(errorMessage);
+      this.logger.error(errorMessage);
+      throw error;
+    }
   }
-
-  // Update the deletedAt field to mark it as soft-deleted
-  await this.prisma.messages.update({
-    where: {
-      id: messageId,
-    },
-    data: {
-      deletedAt: new Date(),
-    },
-  });
-}
 
 }

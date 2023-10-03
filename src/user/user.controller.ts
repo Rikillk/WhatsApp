@@ -2,6 +2,7 @@ import { Controller, Get, Param, UseGuards, Post, Body,ParseIntPipe } from '@nes
 import { UsersService } from './user.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { BlockUserDto } from './dto/block-user.dto'; 
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('users')
 export class UsersController {
@@ -9,11 +10,13 @@ export class UsersController {
 
   // @UseGuards(JwtAuthGuard)
   @Get()
+  @Throttle(5,60)
   getUsers() {
     return this.usersService.getUsers();
   }
   
   @Get(':id')
+  @Throttle(10,60)
   getUser(@Param('id',ParseIntPipe) id: number) {
     return this.usersService.getUser(id);
   }
