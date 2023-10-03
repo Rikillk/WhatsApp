@@ -50,8 +50,7 @@ export class AuthService extends PassportSerializer {
           email,
           username,
           password: hashedPassword,
-        },
-      });
+      }});
 
       await this.emailservice.sendWelcomeMail(dto.email);
 

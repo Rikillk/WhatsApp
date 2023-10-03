@@ -1,4 +1,4 @@
-import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from 'prisma/prisma.module';
 import { UsersModule } from './user/user.module';
@@ -39,6 +39,7 @@ import { BlockModule } from './mongodb/block.module';
 import { RedisCacheModule } from './redis-cache.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { CsrfMiddleware } from './middlewares/csrf.middleware';
 
 @Module({
   imports: [RedisCacheModule,AuthModule, PrismaModule, UsersModule, PassportModule,MessagesModule,GroupModule,HttpModule,EmailModule,
@@ -69,14 +70,19 @@ import { APP_GUARD } from '@nestjs/core';
   providers: [PrismaService, LocalStrategy,AuthService,MessagesService,GroupService,EmailService,ChatGptService,UsersService,PushNotificationService, SlackCronService,SlackNotificationService,UserResolver,MessageResolver,GroupResolver,Logger,
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard
-    }
+      useClass: ThrottlerGuard,
+
+    },
     ] 
 ,
   controllers: [MessagesController,GroupController,PushNotificationController,UploadController, SlackController, FilesController,] 
 })
-export class AppModule {
+export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RecaptchaMiddleware).forRoutes('your-protected-route');
+    consumer
+      .apply(RecaptchaMiddleware) // Apply the first middleware
+      .forRoutes('signin')
+      // .apply(CsrfMiddleware) // Apply the second middleware
+      // .forRoutes('*'); // Apply CSRF protection to all routes
   }
 }

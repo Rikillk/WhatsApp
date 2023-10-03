@@ -17,7 +17,7 @@ export class ChatGptService {
     async analyzeOffensiveMessage(dto: AnalyzeOffensiveDto): Promise<boolean> {
         try {
           const response = await this.openAIApi.completions.create({
-            model:'davinci-002',
+            model:'gpt-3.5-turbo-instruct',
             prompt: `Is the following message offensive? "${dto}"`,
             max_tokens: 1,
           });

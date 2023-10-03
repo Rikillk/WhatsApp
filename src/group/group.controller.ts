@@ -6,10 +6,12 @@ import { MuteGroupDto } from './dto/mute-group.dto';
 import { SendMessageDto } from './dto/sendmessage.dto';
 import { AuthMiddleware } from 'src/auth/auth.middleware';
 import { OffensiveMessageMiddleware } from 'src/middlewares/offensive-message.middleware';
-
+import { CombinedGateway } from 'src/common/combined.gateway';
 @Controller('groups')
 export class GroupController {
- constructor(private readonly groupService: GroupService) {}
+  
+ constructor(private readonly groupService: GroupService,
+  private readonly combinedgateway:CombinedGateway) {}
   @UseGuards(AuthMiddleware) 
   @Post()
   async createGroup(@Body() createGroupDto: CreateGroupDto) {
@@ -22,8 +24,15 @@ export class GroupController {
   }  
   @UseInterceptors(OffensiveMessageMiddleware)
   @Post(':groupId/messages')
-  async sendMessage(@Param('groupId', ParseIntPipe) groupId: number, @Body() sendMessageDto: SendMessageDto) {
-    return this.groupService.sendMessage( sendMessageDto);
+  async sendMessage(@Param('groupId', ParseIntPipe) groupId: number, 
+  @Body() sendMessageDto: SendMessageDto) {
+    // Handle the sendMessage request
+    const message = await this.groupService.sendMessage(sendMessageDto);
+
+    // Use WebSocket to send the message to the group
+    this.combinedgateway.server.to(`group-${groupId}`).emit('message', message);
+
+    return message;
   }
 
   @Put(':groupId/mute')

@@ -57,14 +57,15 @@ model Group {
 model GroupMember {
   id          Int      @id @default(autoincrement())
   userId      Int
-  name        String   @default("Name the Group")
+  name        String   
   groupId     Int
   isMuted     Boolean  @default(false)
   muteUntil   DateTime?
   user        User     @relation("GroupMembers", fields: [userId], references: [id])
   group       Group    @relation("userGroups", fields: [groupId], references: [id])
-  
+
 }
+
 
 // GroupMessage model representing messages in group chats
 model GroupMessage {
